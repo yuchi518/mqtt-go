@@ -5,11 +5,13 @@
 mosquitto 與 mosquitto-no-cert 分別為使用與不使用 SSL 連線所需的設定目錄。
 
 ```shell
-# 使用 SSL
+# 使用 SSL 的啟動方法
 docker run -it --name mosquitto -p 8883:8883 -v ~/Dropbox/RogersAI/Develop/mqtt-go/mosquitto:/mosquitto/ eclipse-mosquitto:2.0.14-openssl
-# 不使用 SSL
+# 不使用 SSL 的啟動方法
 docker run -it --name mosquitto-no-cert -p 1883:1883 -v ~/Dropbox/RogersAI/Develop/mqtt-go/mosquitto-no-cert:/mosquitto/ eclipse-mosquitto:2.0.14
 ```
+注意要將 ~/Dropbox/RogersAI/Develop/mqtt-go 需要修改到正確的位置，而依據需求(使用或不使用ssl)將專案內的/mosquitto或者/mosquitto-no-cert對應到容器內的/mosquitto位置。
+
 
 ### 產生 cert 相關檔案
 當 mosquitto 使用加密連線時，需要建立三個部分的簽章：CA, server, client。
@@ -35,12 +37,12 @@ mosquitto-eclipse 搭配 paho go cmd裡的sample code "ssl"
     /usr/local/Cellar/openssl@1.1/1.1.1p/bin/openssl version
     alias openssl11='/usr/local/Cellar/openssl@1.1/1.1.1p/bin/openssl'
     ```
-2. 產生 CA
+2. 產生 CA (我方自己行建立與保管)
     ```shell
     # openssl req -new -x509 -days <duration> -extensions v3_ca -keyout ca.key -out ca.crt
     openssl11 req -new -x509 -days 3650 -extensions v3_ca -keyout ca.key -out ca.crt
     ```
-3. 產生 server 憑證
+3. 產生 server 憑證 (我方自行建立與保管)
     ```shell
     # == server
     # openssl genrsa -des3 -out server.key 2048
@@ -52,7 +54,7 @@ mosquitto-eclipse 搭配 paho go cmd裡的sample code "ssl"
     openssl11 x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 3650
     ```
 
-4. 產生 client 憑證 (不同client原則上要產生不同的憑證)
+4. 產生 client 憑證 (原則上針對不同client，我方要協助產生不同的憑證提供給對方)
     ```shell
     # openssl genrsa -des3 -out client.key 2048
     openssl11 genrsa -des3 -out client.key 2048
